@@ -1,0 +1,9 @@
+#path to basespace files
+input_data: "/data/gpfs/assoc/inbre/projects/melinda_yerka/sorghum_data/gbs_ssr_progeny_data/ssr_data"
+ref: "/data/gpfs/assoc/inbre/projects/common_references/sbicolor_454_v3.0.1/Sbicolor_454_v3.0.1.fa"
+regions: "/data/gpfs/assoc/inbre/projects/melinda_yerka/sorghum_data/gbs_ssr_progeny_data/hipstr_analysis/sbicolorv3.hipstr_reference.bed"
+
+##Can be either a number or a comma seperated list of values
+#minreads: "10"
+minreads: "10,25,100"
+hipstr_exec: "/data/gpfs/home/hvasquezgross/hipstr_singularity/hipstr_latest.sif"
