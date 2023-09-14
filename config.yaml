@@ -5,5 +5,5 @@ regions: "/data/gpfs/assoc/inbre/projects/melinda_yerka/sorghum_data/gbs_ssr_pro
 
 ##Can be either a number or a comma seperated list of values
 #minreads: "10"
-minreads: "10,25,100"
+minreads: "10,25,100,150"
 hipstr_exec: "/data/gpfs/home/hvasquezgross/hipstr_singularity/hipstr_latest.sif"

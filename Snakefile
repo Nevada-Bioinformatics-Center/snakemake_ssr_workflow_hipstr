@@ -18,6 +18,7 @@ rule all:
     input: 
        "qc/multiqc_report_bwa.html",
        expand("mapped/{sample}.sorted.bam.bai", sample=SAMPLES),
+       expand("hipstr/hipstr_results_minreads{minread}.stats", minread=minreads),
        expand("hipstr/hipstr_results_minreads{minread}.vcf.gz", minread=minreads)
 
 
@@ -202,3 +203,19 @@ rule run_hipstr:
         "logs/hipstr/hipstr_minreads{minread}.log",
     shell:
         "{params.hipstr} --bams {params.listbams} --fasta {ref} --regions {regions} --str-vcf {output.vcf} --viz-out {output.viz} --log {output.stdlog} --min-reads {wildcards.minread} --use-unpaired 2> {log}"
+
+rule bcftstats:
+    input:
+        vcf="hipstr/hipstr_results_minreads{minread}.vcf.gz",
+        fa=ref
+    output:
+        "hipstr/hipstr_results_minreads{minread}.stats"
+    log: 
+        "logs/filter/bcfstats_minreads{minread}.log"
+    resources: time_min=220, mem_mb=8000, cpus=1
+    threads: 1
+    conda:
+        "envs/bcftools.yaml"
+    shell:
+        "bcftools stats -F {input.fa} -s - {input.vcf} > {output} 2> {log}"
+
