@@ -2,6 +2,8 @@ import glob
 
 configfile: "config.yaml"
 
+wrappers_version="v2.6.0"
+
 inputdirectory=config["input_data"]
 #inputbam=config["input_data_bam"]
 ref=config["ref"]
@@ -34,7 +36,7 @@ rule bwa_index:
         algorithm="bwtsw"
     resources: time_min=520, mem_mb=20000, cpus=1
     wrapper:
-        "v1.14.1/bio/bwa/index"
+        f"{wrappers_version}/bio/bwa/index"
 
 rule trimmomatic_se:
     input:
@@ -51,7 +53,7 @@ rule trimmomatic_se:
     threads: 8
     resources: time_min=480, mem_mb=20000, cpus=8
     wrapper:
-        "v1.14.1/bio/trimmomatic/se"
+        f"{wrappers_version}/bio/trimmomatic/se"
 
 
 
@@ -67,7 +69,7 @@ rule fastqc_posttrim_r1:
     resources: time_min=520, mem_mb=20000, cpus=1
     threads: 1
     wrapper:
-        "v1.14.1/bio/fastqc"
+        f"{wrappers_version}/bio/fastqc"
 
 rule fastqc_pretrim_r1:
     input:
@@ -81,7 +83,7 @@ rule fastqc_pretrim_r1:
     resources: time_min=320, mem_mb=8000, cpus=1
     threads: 1
     wrapper:
-        "v1.14.1/bio/fastqc"
+        f"{wrappers_version}/bio/fastqc"
 
 rule multiqc_pre:
     input:
@@ -92,7 +94,7 @@ rule multiqc_pre:
         "logs/multiqc_pre.log"
     resources: time_min=320, mem_mb=8000, cpus=1
     wrapper:
-        "v1.14.1/bio/multiqc"
+        f"{wrappers_version}/bio/multiqc"
 
 
 rule bwa_mem:
@@ -112,7 +114,7 @@ rule bwa_mem:
     threads: 16
     resources: time_min=1320, mem_mb=20000, cpus=16
     wrapper:
-        "v1.14.1/bio/bwa/mem"
+        f"{wrappers_version}/bio/bwa/mem"
 
 rule samtools_sort:
     input:
@@ -137,7 +139,7 @@ rule samtools_flagstat:
     threads: 1
     resources: time_min=320, mem_mb=8000, cpus=1
     wrapper:
-        "v1.14.1/bio/samtools/flagstat"
+        f"{wrappers_version}/bio/samtools/flagstat"
 
 rule multiqc_bwa:
     input:
@@ -152,7 +154,7 @@ rule multiqc_bwa:
     threads: 1
     resources: time_min=320, mem_mb=8000, cpus=1
     wrapper:
-        "v1.14.1/bio/multiqc"
+        f"{wrappers_version}/bio/multiqc"
 
 
 rule samtools_index:
@@ -167,7 +169,7 @@ rule samtools_index:
     threads: 4  # This value - 1 will be sent to -@
     resources: time_min=320, mem_mb=8000, cpus=4
     wrapper:
-        "v1.14.1/bio/samtools/index"
+        f"{wrappers_version}/bio/samtools/index"
 
 
 rule multiqc_posttrim:
@@ -181,8 +183,21 @@ rule multiqc_posttrim:
     threads: 1
     resources: time_min=520, mem_mb=40000, cpus=1
     wrapper:
-        "v1.14.1/bio/multiqc"
+        f"{wrappers_version}/bio/multiqc"
 
+rule samtools_faidx:
+    input:
+        ref, 
+    output:
+        ref + ".fai" 
+    threads: 8
+    resources: time_min=220, mem_mb=10000, cpus=10
+    log:
+        "logs/samtools_faidx/faidx.log"
+    conda:
+        "envs/samtools.yaml"
+    shell:
+        "samtools faidx {input} 2> {log}"
 
 rule run_hipstr:
     input:
@@ -190,6 +205,7 @@ rule run_hipstr:
         bai=expand("mapped/{sample}.sorted.bam.bai", sample=SAMPLES),
         ref=ref, 
         regions=regions,
+        fai=ref + ".fai"
     output:
         vcf="hipstr/hipstr_results_minreads{minread}.vcf.gz",
         viz="hipstr/hipstr_results_minreads{minread}.viz.gz",
